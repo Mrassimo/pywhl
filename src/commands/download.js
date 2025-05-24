@@ -7,10 +7,12 @@ import { WheelParser } from '../core/pypi/wheel-parser.js';
 import { Downloader } from '../core/downloader.js';
 import { DependencyResolver } from '../core/resolver/dependency-resolver.js';
 import { CacheManager } from '../core/cache/manager.js';
+import { RequirementsParser } from '../utils/requirements-parser.js';
 
 export const downloadCommand = new Command('download')
   .description('Download Python wheels from PyPI')
-  .argument('<package>', 'Package name (optionally with version, e.g., numpy==1.24.0)')
+  .argument('[package]', 'Package name (optionally with version, e.g., numpy==1.24.0)')
+  .option('-r, --requirements <file>', 'Install from requirements file')
   .option('-p, --python <version>', 'Python version', '3.9')
   .option('-t, --platform <platform>', 'Target platform')
   .option('-d, --deps', 'Download dependencies', false)
@@ -18,6 +20,17 @@ export const downloadCommand = new Command('download')
   .option('--no-cache', 'Skip cache', false)
   .action(async (packageSpec, options) => {
     try {
+      // Handle requirements file
+      if (options.requirements) {
+        await downloadFromRequirements(options.requirements, options);
+        return;
+      }
+
+      // Validate package argument
+      if (!packageSpec) {
+        throw new Error('Please specify a package name or use -r for requirements file');
+      }
+
       // Parse package specification
       const match = packageSpec.match(/^([a-zA-Z0-9._-]+)(==(.+))?$/);
       if (!match) {
@@ -153,3 +166,92 @@ export const downloadCommand = new Command('download')
       process.exit(1);
     }
   });
+
+async function downloadFromRequirements(filePath, options) {
+  console.log(chalk.blue(`\nParsing requirements from ${filePath}...\n`));
+  
+  const requirements = await RequirementsParser.parse(filePath);
+  
+  if (requirements.length === 0) {
+    console.log(chalk.yellow('No requirements found in file'));
+    return;
+  }
+
+  console.log(chalk.cyan(`Found ${requirements.length} requirement(s):\n`));
+  requirements.forEach(req => {
+    console.log(`  - ${RequirementsParser.formatRequirement(req)}`);
+  });
+  console.log();
+
+  // Download each requirement
+  for (const req of requirements) {
+    try {
+      console.log(chalk.blue(`\nDownloading ${req.name}...\n`));
+      
+      const packageSpec = RequirementsParser.formatRequirement(req);
+      const downloadOptions = { ...options };
+      delete downloadOptions.requirements; // Remove requirements option
+      
+      // Call download for each package
+      await downloadPackage(packageSpec, downloadOptions);
+      
+    } catch (error) {
+      console.error(chalk.red(`Failed to download ${req.name}: ${error.message}`));
+    }
+  }
+  
+  console.log(chalk.green(`\n✓ Completed processing requirements file`));
+}
+
+async function downloadPackage(packageSpec, options) {
+  // Parse package specification
+  const match = packageSpec.match(/^([a-zA-Z0-9._-]+)(==(.+))?$/);
+  if (!match) {
+    throw new Error('Invalid package specification');
+  }
+
+  const packageName = match[1];
+  const version = match[3] || null;
+
+  // Initialize components
+  const pypiClient = new PyPIClient();
+  const downloader = new Downloader();
+  const cacheManager = new CacheManager();
+  
+  await cacheManager.init();
+  await mkdir(options.output, { recursive: true });
+
+  // Get package info
+  const packageInfo = await pypiClient.getPackageInfo(packageName, version);
+  const resolvedVersion = version || packageInfo.info.version;
+
+  // Get wheels for this version
+  const releases = packageInfo.releases[resolvedVersion] || [];
+  const wheels = releases.filter(r => r.filename.endsWith('.whl'));
+
+  if (wheels.length === 0) {
+    throw new Error(`No wheels found for ${packageName}==${resolvedVersion}`);
+  }
+
+  // Select best wheel
+  const targetPlatform = options.platform || WheelParser.getCurrentPlatform();
+  const bestWheel = WheelParser.selectBestWheel(wheels, options.python, targetPlatform);
+
+  if (!bestWheel) {
+    throw new Error(`No compatible wheel found for Python ${options.python} on ${targetPlatform}`);
+  }
+
+  // Download the wheel
+  const cached = options.cache !== false && 
+    await cacheManager.exists(packageName, resolvedVersion, bestWheel.filename);
+  
+  if (cached) {
+    console.log(chalk.green(`✓ ${bestWheel.filename} (cached)`));
+  } else {
+    await downloader.downloadWheel(
+      bestWheel.url,
+      join(options.output, bestWheel.filename),
+      { filename: bestWheel.filename }
+    );
+  }
+}

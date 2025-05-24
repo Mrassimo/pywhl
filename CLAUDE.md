@@ -26,18 +26,24 @@ pywheel-cli/
 
 ## Key Dependencies
 
+### Core Dependencies
 - Commander.js - CLI framework
-- Inquirer.js - Interactive prompts
+- Got - HTTP client for PyPI API
 - Chalk - Terminal styling
 - Ora - Terminal spinners
-- CLI-Table3 - Terminal tables
-- Got - HTTP client for PyPI API
 - Semver - Version parsing
+
+### Phase 2 Dependencies
+- Inquirer.js - Interactive prompts
+- CLI-Table3 - Terminal tables
+- CLI-Progress - Progress bars
 - Conf - Configuration management
+- Figlet - ASCII art banners
+- Gradient-string - Gradient text
+- Boxen - Terminal boxes
+- YAML - Configuration parsing
 
 ## Development Commands
-
-Since this is a new project without existing package.json, the following commands should be set up:
 
 ```bash
 # Install dependencies
@@ -46,17 +52,17 @@ npm install
 # Run in development mode
 npm run dev
 
-# Build the project
-npm run build
-
 # Run tests
 npm test
 
 # Lint code
 npm run lint
 
-# Type check (if using TypeScript)
-npm run typecheck
+# Run specific command
+node bin/pywhl.js <command>
+
+# Test interactive mode
+node bin/pywhl.js interactive
 ```
 
 ## Core Features to Implement

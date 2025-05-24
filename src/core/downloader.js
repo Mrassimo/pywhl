@@ -4,6 +4,7 @@ import { pipeline } from 'stream/promises';
 import { join } from 'path';
 import ora from 'ora';
 import chalk from 'chalk';
+import cliProgress from 'cli-progress';
 
 export class Downloader {
   constructor(options = {}) {
@@ -12,7 +13,13 @@ export class Downloader {
   }
 
   async downloadWheel(url, outputPath, options = {}) {
-    const spinner = options.silent ? null : ora(`Downloading ${chalk.cyan(options.filename || 'wheel')}...`).start();
+    const useProgressBar = options.progressBar !== false && !options.silent;
+    let progressBar = null;
+    let spinner = null;
+    
+    if (!useProgressBar && !options.silent) {
+      spinner = ora(`Downloading ${chalk.cyan(options.filename || 'wheel')}...`).start();
+    }
     
     try {
       const downloadStream = got.stream(url, {
@@ -26,12 +33,27 @@ export class Downloader {
 
       let downloadedBytes = 0;
       let totalBytes = 0;
+      let progressStarted = false;
 
       downloadStream.on('downloadProgress', (progress) => {
         downloadedBytes = progress.transferred;
         totalBytes = progress.total || 0;
         
-        if (spinner && totalBytes > 0) {
+        if (useProgressBar && totalBytes > 0 && !progressStarted) {
+          // Initialize progress bar when we know the total size
+          progressStarted = true;
+          progressBar = new cliProgress.SingleBar({
+            format: `${chalk.cyan(options.filename || 'wheel')} |${chalk.cyan('{bar}')}| {percentage}% | {value}/{total} bytes | ETA: {eta}s`,
+            barCompleteChar: '\u2588',
+            barIncompleteChar: '\u2591',
+            hideCursor: true
+          });
+          progressBar.start(totalBytes, 0);
+        }
+        
+        if (progressBar) {
+          progressBar.update(downloadedBytes);
+        } else if (spinner && totalBytes > 0) {
           const percent = Math.round((downloadedBytes / totalBytes) * 100);
           spinner.text = `Downloading ${chalk.cyan(options.filename || 'wheel')}... ${percent}%`;
         }
@@ -42,7 +64,10 @@ export class Downloader {
         createWriteStream(outputPath)
       );
 
-      if (spinner) {
+      if (progressBar) {
+        progressBar.stop();
+        console.log(chalk.green(`✓ Downloaded ${options.filename || 'wheel'}`));
+      } else if (spinner) {
         spinner.succeed(`Downloaded ${chalk.green(options.filename || 'wheel')}`);
       }
 
@@ -52,6 +77,9 @@ export class Downloader {
         url
       };
     } catch (error) {
+      if (progressBar) {
+        progressBar.stop();
+      }
       if (spinner) {
         spinner.fail(`Failed to download ${chalk.red(options.filename || 'wheel')}`);
       }
