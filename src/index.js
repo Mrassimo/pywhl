@@ -10,6 +10,7 @@ import { interactiveCommand } from './commands/interactive.js';
 import { installScriptCommand } from './commands/install-script.js';
 import { bundleCommand } from './commands/bundle.js';
 import { repoCommand } from './commands/repo.js';
+import { adminCommand } from './commands/admin.js';
 import { getVersion } from './utils/version.js';
 
 // Display banner for main help
@@ -34,6 +35,7 @@ program.addCommand(interactiveCommand);
 program.addCommand(installScriptCommand);
 program.addCommand(bundleCommand);
 program.addCommand(repoCommand);
+program.addCommand(adminCommand);
 
 // Error handling
 program.exitOverride((err) => {

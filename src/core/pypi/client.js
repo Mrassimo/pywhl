@@ -1,5 +1,4 @@
 import got from 'got';
-import { URL } from 'url';
 
 const DEFAULT_PYPI_URL = 'https://pypi.org/pypi';
 const DEFAULT_TIMEOUT = 30000; // 30 seconds
@@ -57,11 +56,11 @@ export class PyPIClient {
     }
   }
 
-  async searchPackages(query, limit = 10) {
+  async searchPackages(query) {
     try {
       // PyPI search API is different from the JSON API
       const searchUrl = 'https://pypi.org/search/';
-      const response = await this.client.get(searchUrl, {
+      await this.client.get(searchUrl, {
         searchParams: {
           q: query,
           o: '-created' // Order by newest first

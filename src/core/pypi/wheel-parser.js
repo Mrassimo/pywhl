@@ -1,4 +1,3 @@
-import semver from 'semver';
 import { platform, arch } from 'os';
 
 // Wheel filename format: {distribution}-{version}(-{build tag})?-{python}-{abi}-{platform}.whl
@@ -23,11 +22,6 @@ export class WheelParser {
   }
 
   static getCurrentPlatform() {
-    const platformMap = {
-      'darwin': 'macosx',
-      'linux': 'linux',
-      'win32': 'win'
-    };
 
     const archMap = {
       'x64': 'x86_64',
@@ -38,12 +32,11 @@ export class WheelParser {
     const osPlatform = platform();
     const osArch = arch();
 
-    const platformName = platformMap[osPlatform] || osPlatform;
     const archName = archMap[osArch] || osArch;
 
     if (osPlatform === 'darwin') {
-      // macOS uses specific version numbers
-      return `macosx_10_9_${archName}`;
+      // macOS uses specific version numbers - use a more modern baseline
+      return `macosx_12_0_${archName}`;
     } else if (osPlatform === 'linux') {
       return `linux_${archName}`;
     } else if (osPlatform === 'win32') {
@@ -92,14 +85,15 @@ export class WheelParser {
     const cpMatch = pythonTag.match(/cp(\d)(\d+)/);
     if (cpMatch) {
       const wheelPyVersion = `${cpMatch[1]}.${cpMatch[2]}`;
-      return wheelPyVersion === targetVersion.slice(0, 3);
+      // Compare with the target version (e.g., "3.11")
+      return wheelPyVersion === targetVersion;
     }
     
     // Handle 'py39' style tags
     const pyMatch = pythonTag.match(/py(\d)(\d+)/);
     if (pyMatch) {
       const wheelPyVersion = `${pyMatch[1]}.${pyMatch[2]}`;
-      return wheelPyVersion === targetVersion.slice(0, 3);
+      return wheelPyVersion === targetVersion;
     }
     
     return false;

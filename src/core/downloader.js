@@ -1,7 +1,6 @@
 import got from 'got';
 import { createWriteStream } from 'fs';
 import { pipeline } from 'stream/promises';
-import { join } from 'path';
 import ora from 'ora';
 import chalk from 'chalk';
 import cliProgress from 'cli-progress';

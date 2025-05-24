@@ -10,16 +10,28 @@
     "start": "node ./bin/pywhl.js",
     "dev": "node ./bin/pywhl.js",
     "test": "jest",
-    "lint": "eslint src/**/*.js",
-    "lint:fix": "eslint src/**/*.js --fix"
+    "postinstall": "echo '\n🎉 Pywhl CLI installed successfully!' && echo '💡 Get started: npx pywhl --help' && echo '📚 Documentation: https://github.com/Mrassimo/pywhl#readme\n'"
   },
   "keywords": [
     "python",
     "wheel",
     "pip",
     "package-manager",
-    "cli"
+    "cli",
+    "enterprise",
+    "offline",
+    "restricted-environments",
+    "pypi",
+    "dependency-management"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Mrassimo/pywhl.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Mrassimo/pywhl/issues"
+  },
+  "homepage": "https://github.com/Mrassimo/pywhl#readme",
   "author": "Massimo Raso",
   "license": "MIT",
   "type": "module",

@@ -54,6 +54,11 @@ pywhl/
 - p-limit - Parallel execution control
 - execa - Process execution for VS Code extension
 
+### Phase 4 Dependencies
+- YAML - Policy configuration parsing
+- Got - HTTP client for security API calls
+- Crypto - Hash generation for file analysis
+
 ## Development Commands
 
 ```bash
@@ -74,6 +79,12 @@ node bin/pywhl.js <command>
 
 # Test interactive mode
 node bin/pywhl.js interactive
+
+# Enterprise admin commands
+node bin/pywhl.js admin policy init
+node bin/pywhl.js admin policy show
+node bin/pywhl.js admin audit report
+node bin/pywhl.js admin security scan <package>
 ```
 
 ## Core Features Implemented
@@ -96,6 +107,14 @@ node bin/pywhl.js interactive
 11. **Advanced Resolver** - Conflict detection and environment markers
 12. **Parallel Downloads** - Concurrent downloads with progress tracking
 13. **VS Code Extension** - IDE integration for package management
+
+### Phase 4 (Enterprise)
+14. **Audit Logging** - Comprehensive tracking of all package operations
+15. **Security Scanning** - Vulnerability detection with OSS Index and Safety DB
+16. **Policy Management** - Enterprise-grade access controls and governance
+17. **License Compliance** - Automated license checking and reporting
+18. **Admin Controls** - User management and policy enforcement
+19. **Centralized Reporting** - Audit reports and usage analytics
 
 ## PyPI Integration Notes
 
