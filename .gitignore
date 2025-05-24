@@ -1,0 +1,42 @@
+# Dependencies
+node_modules/
+
+# Output directories
+wheels/
+*.whl
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage
+coverage/
+.nyc_output
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.local
+
+# Cache
+.pywhl/
+
+# Build
+dist/
+build/
