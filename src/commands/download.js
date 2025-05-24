@@ -6,8 +6,10 @@ import { PyPIClient } from '../core/pypi/client.js';
 import { WheelParser } from '../core/pypi/wheel-parser.js';
 import { Downloader } from '../core/downloader.js';
 import { DependencyResolver } from '../core/resolver/dependency-resolver.js';
+import { AdvancedDependencyResolver } from '../core/resolver/advanced-resolver.js';
 import { CacheManager } from '../core/cache/manager.js';
 import { RequirementsParser } from '../utils/requirements-parser.js';
+import { RepositoryManager } from '../core/repository/repository-manager.js';
 
 export const downloadCommand = new Command('download')
   .description('Download Python wheels from PyPI')
@@ -18,6 +20,8 @@ export const downloadCommand = new Command('download')
   .option('-d, --deps', 'Download dependencies', false)
   .option('-o, --output <dir>', 'Output directory', './wheels')
   .option('--no-cache', 'Skip cache', false)
+  .option('--parallel <n>', 'Number of parallel downloads', parseInt, 3)
+  .option('--use-advanced-resolver', 'Use advanced dependency resolver', false)
   .action(async (packageSpec, options) => {
     try {
       // Handle requirements file

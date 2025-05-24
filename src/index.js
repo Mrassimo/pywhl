@@ -8,6 +8,8 @@ import { infoCommand } from './commands/info.js';
 import { configCommand } from './commands/config.js';
 import { interactiveCommand } from './commands/interactive.js';
 import { installScriptCommand } from './commands/install-script.js';
+import { bundleCommand } from './commands/bundle.js';
+import { repoCommand } from './commands/repo.js';
 import { getVersion } from './utils/version.js';
 
 // Display banner for main help
@@ -30,6 +32,8 @@ program.addCommand(infoCommand);
 program.addCommand(configCommand);
 program.addCommand(interactiveCommand);
 program.addCommand(installScriptCommand);
+program.addCommand(bundleCommand);
+program.addCommand(repoCommand);
 
 // Error handling
 program.exitOverride((err) => {

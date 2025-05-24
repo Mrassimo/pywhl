@@ -9,19 +9,36 @@ export class PyPIClient {
   constructor(options = {}) {
     this.baseUrl = options.baseUrl || DEFAULT_PYPI_URL;
     this.timeout = options.timeout || DEFAULT_TIMEOUT;
-    this.client = got.extend({
+    
+    const clientOptions = {
       timeout: {
         request: this.timeout
       },
       headers: {
         'User-Agent': USER_AGENT,
-        'Accept': 'application/json'
+        'Accept': 'application/json',
+        ...options.headers
       },
       retry: {
         limit: 3,
         methods: ['GET']
       }
-    });
+    };
+
+    // Add authentication if provided
+    if (options.username && options.password) {
+      clientOptions.username = options.username;
+      clientOptions.password = options.password;
+    }
+
+    // Add proxy support
+    if (options.proxy) {
+      clientOptions.https = {
+        proxy: options.proxy
+      };
+    }
+
+    this.client = got.extend(clientOptions);
   }
 
   async getPackageInfo(packageName, version = null) {

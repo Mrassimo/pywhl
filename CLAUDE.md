@@ -9,19 +9,25 @@ Pywhl CLI is a Node.js command-line tool for managing Python packages in restric
 ## Architecture Structure
 
 ```
-pywheel-cli/
+pywhl/
 ├── src/
 │   ├── commands/          # CLI command implementations
+│   │   ├── download.js    # Package download with parallel support
+│   │   ├── bundle.js      # Offline bundle creation
+│   │   ├── repo.js        # Repository management
+│   │   └── ...           # Other commands
 │   ├── core/              # Core business logic
 │   │   ├── pypi/          # PyPI API integration
-│   │   ├── resolver/      # Dependency resolution
+│   │   ├── resolver/      # Dependency resolution (basic + advanced)
 │   │   ├── cache/         # Local cache management
-│   │   └── installer/     # Installation helpers
+│   │   ├── repository/    # Multi-repo support
+│   │   └── config/        # Configuration management
 │   ├── ui/                # Terminal UI components
 │   └── utils/             # Utility functions
-├── config/                # Configuration schemas
-├── templates/             # Script templates
-└── tests/                 # Test suites
+├── vscode-extension/      # VS Code extension
+│   ├── src/              # Extension source
+│   └── package.json      # Extension manifest
+└── tests/                # Test suites
 ```
 
 ## Key Dependencies
@@ -42,6 +48,11 @@ pywheel-cli/
 - Gradient-string - Gradient text
 - Boxen - Terminal boxes
 - YAML - Configuration parsing
+
+### Phase 3 Dependencies
+- Archiver - ZIP file creation for bundles
+- p-limit - Parallel execution control
+- execa - Process execution for VS Code extension
 
 ## Development Commands
 
@@ -65,13 +76,26 @@ node bin/pywhl.js <command>
 node bin/pywhl.js interactive
 ```
 
-## Core Features to Implement
+## Core Features Implemented
 
+### Phase 1 (MVP)
 1. **Package Discovery & Download** - PyPI search and smart wheel selection
-2. **Dependency Resolution** - Recursive dependency resolution with conflict detection
-3. **Local Repository Management** - Caching with PEP 503 compliant structure
-4. **Installation Helpers** - Script generation and virtual environment integration
-5. **Advanced CLI Experience** - Interactive TUI and rich terminal output
+2. **Dependency Resolution** - Basic recursive dependency resolution
+3. **Local Cache Management** - Simple caching system
+4. **Core CLI Commands** - download, info, search, cache
+
+### Phase 2 (Enhanced UX)
+5. **Interactive Mode** - TUI with package search and selection
+6. **Configuration Management** - Profiles and persistent settings
+7. **Requirements.txt Support** - Batch downloads from requirements files
+8. **Installation Scripts** - Platform-specific install script generation
+
+### Phase 3 (Advanced)
+9. **Multi-Repository Support** - Private PyPI repos with authentication
+10. **Offline Bundles** - Self-contained installation packages
+11. **Advanced Resolver** - Conflict detection and environment markers
+12. **Parallel Downloads** - Concurrent downloads with progress tracking
+13. **VS Code Extension** - IDE integration for package management
 
 ## PyPI Integration Notes
 
