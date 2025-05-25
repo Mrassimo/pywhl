@@ -40,3 +40,13 @@ Thumbs.db
 # Build
 dist/
 build/
+
+# Test artifacts and bundles
+test-*.zip
+enterprise-bundle.zip
+numpy-all-platforms.zip
+*.zip
+
+# Audit reports
+audit-report-*.json
+final-audit-report.json

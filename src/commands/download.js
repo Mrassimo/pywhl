@@ -12,12 +12,13 @@ import { AuditLogger } from '../core/audit/audit-logger.js';
 import { PolicyManager } from '../core/admin/policy-manager.js';
 import { SecurityScanner } from '../core/security/security-scanner.js';
 import { LicenseChecker } from '../core/compliance/license-checker.js';
+import { PythonDetector } from '../utils/python-detector.js';
 
 export const downloadCommand = new Command('download')
   .description('Download Python wheels from PyPI')
   .argument('[package]', 'Package name (optionally with version, e.g., numpy==1.24.0)')
   .option('-r, --requirements <file>', 'Install from requirements file')
-  .option('-p, --python <version>', 'Python version', '3.9')
+  .option('-p, --python <version>', 'Python version (auto-detected if not specified)')
   .option('-t, --platform <platform>', 'Target platform')
   .option('-d, --deps', 'Download dependencies', false)
   .option('-o, --output <dir>', 'Output directory', './wheels')
@@ -61,6 +62,12 @@ export const downloadCommand = new Command('download')
       await cacheManager.init();
       await mkdir(options.output, { recursive: true });
 
+      // Auto-detect Python version if not specified
+      if (!options.python) {
+        options.python = PythonDetector.detectPythonVersion();
+        console.log(chalk.cyan(`🔍 Auto-detected Python version: ${options.python}\n`));
+      }
+
       console.log(chalk.blue(`\nDownloading ${chalk.bold(packageName)}${version ? `==${version}` : ''}\n`));
 
       // Get package info
@@ -103,7 +110,42 @@ export const downloadCommand = new Command('download')
       const bestWheel = WheelParser.selectBestWheel(wheels, options.python, targetPlatform);
 
       if (!bestWheel) {
-        throw new Error(`No compatible wheel found for Python ${options.python} on ${targetPlatform}`);
+        // Provide more detailed error message with available wheels
+        const availablePythonVersions = new Set();
+        const availablePlatforms = new Set();
+        
+        wheels.forEach(wheel => {
+          try {
+            const parsed = WheelParser.parseWheelFilename(wheel.filename);
+            if (parsed.pythonTag.startsWith('cp')) {
+              const match = parsed.pythonTag.match(/cp(\d)(\d+)/);
+              if (match) {
+                availablePythonVersions.add(`${match[1]}.${match[2]}`);
+              }
+            } else if (parsed.pythonTag === 'py3' || parsed.pythonTag === 'py2.py3') {
+              availablePythonVersions.add('3.x (any)');
+            }
+            availablePlatforms.add(parsed.platformTag);
+          } catch (e) {
+            // Ignore parse errors
+          }
+        });
+        
+        console.error(chalk.red('\n❌ No compatible wheel found'));
+        console.error(chalk.yellow(`\nRequested: Python ${options.python} on ${targetPlatform}`));
+        console.error(chalk.yellow(`\nAvailable wheels support:`));
+        console.error(chalk.yellow(`  • Python versions: ${Array.from(availablePythonVersions).join(', ')}`));
+        console.error(chalk.yellow(`  • Platforms: ${Array.from(availablePlatforms).join(', ')}`));
+        const suggestedVersion = PythonDetector.suggestCompatibleVersion(options.python, availablePythonVersions);
+        if (suggestedVersion !== options.python && suggestedVersion !== '3.x (any)') {
+          console.error(chalk.cyan(`\n💡 Tip: Try using Python ${suggestedVersion}:`));
+          console.error(chalk.cyan(`   pywhl download ${packageName} -p ${suggestedVersion}`));
+        } else {
+          console.error(chalk.cyan(`\n💡 Tip: Try specifying a different Python version with -p flag`));
+          console.error(chalk.cyan(`   Example: pywhl download ${packageName} -p 3.11`));
+        }
+        
+        throw new Error(`No compatible wheel found`);
       }
 
       // Security Scanning
@@ -229,7 +271,11 @@ export const downloadCommand = new Command('download')
                   outputPath: join(options.output, depBestWheel.filename)
                 });
               }
+            } else {
+              console.warn(chalk.yellow(`⚠️  No compatible wheel for ${depName}==${depVersion} (Python ${options.python}, ${targetPlatform})`));
             }
+          } else {
+            console.warn(chalk.yellow(`⚠️  No wheels available for ${depName}==${depVersion}`));
           }
           } catch (error) {
             console.warn(chalk.yellow(`Warning: Failed to process ${depName}: ${error.message}`));
@@ -242,9 +288,13 @@ export const downloadCommand = new Command('download')
         const { results, errors } = await downloader.downloadMultiple(downloads);
         
         if (errors.length > 0) {
-          console.log(chalk.red('\nErrors:'));
+          console.log(chalk.red('\n❌ Download errors:'));
           errors.forEach(err => {
-            console.log(chalk.red(`  ✗ ${err.filename}: ${err.error}`));
+            console.log(chalk.red(`  • ${err.filename}: ${err.error}`));
+            // Retry suggestion for network errors
+            if (err.error.includes('ETIMEDOUT') || err.error.includes('ECONNRESET')) {
+              console.log(chalk.yellow(`    🔄 Network timeout - try running the command again`));
+            }
           });
         }
 

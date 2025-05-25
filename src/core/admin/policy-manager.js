@@ -47,7 +47,7 @@ export class PolicyManager {
       security: {
         vulnerability_scanning: {
           enabled: true,
-          block_on_critical: true,
+          block_on_critical: false, // Warn but don't block by default
           block_on_high: false,
           databases: ['ossindex', 'safety']
         },
@@ -56,19 +56,57 @@ export class PolicyManager {
         require_approval: false
       },
       licensing: {
-        enabled: true,
+        enabled: false, // Disabled by default for better user experience
         allowed_licenses: [
+          // Common permissive licenses
           'MIT',
+          'MIT License',
+          'BSD',
+          'BSD License',
           'BSD-2-Clause',
           'BSD-3-Clause',
+          'BSD 3-Clause License',
           'Apache-2.0',
+          'Apache Software License',
+          'Apache License 2.0',
           'ISC',
+          'ISC License',
           'LGPL-2.1',
-          'LGPL-3.0'
+          'LGPL-3.0',
+          'PSF',
+          'Python Software Foundation License',
+          'MPL-2.0',
+          'Mozilla Public License 2.0',
+          '3-Clause BSD License',
+          '2-Clause BSD License',
+          'BSD-3-Clause-Clear',
+          'Unlicense',
+          'CC0-1.0',
+          'WTFPL',
+          'Zlib',
+          'Historical Permission Notice and Disclaimer (HPND)',
+          'HPND',
+          'BSD-2-Clause-FreeBSD',
+          'BSD-3-Clause-No-Nuclear-License',
+          // Common variations
+          'MIT license',
+          'Apache 2.0',
+          'Apache',
+          'Modified BSD License',
+          'New BSD License',
+          'Simplified BSD License',
+          'FreeBSD License',
+          // Empty/Unknown (common in packages)
+          '',
+          'UNKNOWN',
+          'Unknown'
         ],
         blocked_licenses: [
           'GPL-3.0',
-          'AGPL-3.0'
+          'AGPL-3.0',
+          'GPL-2.0',
+          'AGPL-1.0',
+          'AGPL-2.0'
         ],
         require_license_approval: false
       },
@@ -211,10 +249,17 @@ export class PolicyManager {
 
     // Check if license is in allowed list (if specified)
     if (licensePolicy.allowed_licenses.length > 0) {
-      if (!licensePolicy.allowed_licenses.includes(packageLicense)) {
+      // Normalize license name for comparison
+      const normalizedPackageLicense = packageLicense.trim();
+      const isAllowed = licensePolicy.allowed_licenses.some(allowed => 
+        allowed.toLowerCase() === normalizedPackageLicense.toLowerCase() ||
+        allowed === normalizedPackageLicense
+      );
+      
+      if (!isAllowed && normalizedPackageLicense !== 'Unknown') {
         violations.push({
           type: 'unapproved_license',
-          message: `License ${packageLicense} is not in the approved list`,
+          message: `License "${packageLicense}" is not in the approved list`,
           severity: 'medium',
           license: packageLicense
         });

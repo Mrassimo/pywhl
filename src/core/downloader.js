@@ -11,15 +11,49 @@ export class Downloader {
     this.timeout = options.timeout || 60000; // 60 seconds
     this.retries = options.retries || 3;
     this.concurrency = options.concurrency || 3; // Default 3 parallel downloads
+    this.retryDelay = options.retryDelay || 1000; // Base retry delay in ms
   }
 
   async downloadWheel(url, outputPath, options = {}) {
+    let lastError;
+    const maxRetries = options.retries || this.retries;
+    
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        return await this._downloadAttempt(url, outputPath, options, attempt, maxRetries);
+      } catch (error) {
+        lastError = error;
+        
+        // Check if error is retryable
+        const isNetworkError = error.message.includes('ETIMEDOUT') || 
+                             error.message.includes('ECONNRESET') || 
+                             error.message.includes('ENOTFOUND') ||
+                             error.message.includes('socket hang up') ||
+                             error.message.includes('EHOSTUNREACH');
+        
+        if (isNetworkError && attempt < maxRetries) {
+          const delay = this.retryDelay * Math.pow(2, attempt - 1); // Exponential backoff
+          if (!options.silent) {
+            console.log(chalk.yellow(`\n🔄 Retry ${attempt}/${maxRetries - 1} for ${options.filename} after ${delay}ms...`));
+          }
+          await new Promise(resolve => setTimeout(resolve, delay));
+        } else {
+          throw error;
+        }
+      }
+    }
+    
+    throw lastError;
+  }
+  
+  async _downloadAttempt(url, outputPath, options = {}, attempt = 1, maxRetries = 3) {
     const useProgressBar = options.progressBar !== false && !options.silent;
     let progressBar = null;
     let spinner = null;
     
     if (!useProgressBar && !options.silent) {
-      spinner = ora(`Downloading ${chalk.cyan(options.filename || 'wheel')}...`).start();
+      const attemptText = attempt > 1 ? ` (attempt ${attempt}/${maxRetries})` : '';
+      spinner = ora(`Downloading ${chalk.cyan(options.filename || 'wheel')}${attemptText}...`).start();
     }
     
     try {
@@ -28,7 +62,10 @@ export class Downloader {
           request: this.timeout
         },
         retry: {
-          limit: this.retries
+          limit: 0 // We handle retries manually for better control
+        },
+        headers: {
+          'User-Agent': 'pywhl-cli/0.1.0'
         }
       });
 
@@ -39,6 +76,15 @@ export class Downloader {
       downloadStream.on('downloadProgress', (progress) => {
         downloadedBytes = progress.transferred;
         totalBytes = progress.total || 0;
+        
+        // Call custom progress handler if provided
+        if (options.onProgress) {
+          options.onProgress({
+            transferred: downloadedBytes,
+            total: totalBytes,
+            percent: totalBytes > 0 ? (downloadedBytes / totalBytes) * 100 : 0
+          });
+        }
         
         if (useProgressBar && totalBytes > 0 && !progressStarted) {
           // Initialize progress bar when we know the total size
@@ -56,7 +102,7 @@ export class Downloader {
           progressBar.update(downloadedBytes);
         } else if (spinner && totalBytes > 0) {
           const percent = Math.round((downloadedBytes / totalBytes) * 100);
-          spinner.text = `Downloading ${chalk.cyan(options.filename || 'wheel')}... ${percent}%`;
+          spinner.text = `Downloading ${chalk.cyan(options.filename || 'wheel')}${attempt > 1 ? ` (attempt ${attempt}/${maxRetries})` : ''}... ${percent}%`;
         }
       });
 
@@ -67,7 +113,9 @@ export class Downloader {
 
       if (progressBar) {
         progressBar.stop();
-        console.log(chalk.green(`✓ Downloaded ${options.filename || 'wheel'}`));
+        if (!options.onProgress) { // Don't log if using custom progress
+          console.log(chalk.green(`✓ Downloaded ${options.filename || 'wheel'}`));
+        }
       } else if (spinner) {
         spinner.succeed(`Downloaded ${chalk.green(options.filename || 'wheel')}`);
       }
@@ -147,7 +195,8 @@ export class Downloader {
           completed++;
           errors.push({
             filename: download.filename,
-            error: error.message
+            error: error.message,
+            url: download.url
           });
           
           if (!options.silent) {
@@ -165,92 +214,5 @@ export class Downloader {
     }
 
     return { results, errors };
-  }
-
-  // Update downloadWheel to support progress callback
-  async downloadWheel(url, outputPath, options = {}) {
-    const useProgressBar = options.progressBar !== false && !options.silent;
-    let progressBar = null;
-    let spinner = null;
-    
-    if (!useProgressBar && !options.silent) {
-      spinner = ora(`Downloading ${chalk.cyan(options.filename || 'wheel')}...`).start();
-    }
-    
-    try {
-      const downloadStream = got.stream(url, {
-        timeout: {
-          request: this.timeout
-        },
-        retry: {
-          limit: this.retries
-        }
-      });
-
-      let downloadedBytes = 0;
-      let totalBytes = 0;
-      let progressStarted = false;
-
-      downloadStream.on('downloadProgress', (progress) => {
-        downloadedBytes = progress.transferred;
-        totalBytes = progress.total || 0;
-        
-        // Call custom progress handler if provided
-        if (options.onProgress) {
-          options.onProgress({
-            transferred: downloadedBytes,
-            total: totalBytes,
-            percent: totalBytes > 0 ? (downloadedBytes / totalBytes) * 100 : 0
-          });
-        }
-        
-        if (useProgressBar && totalBytes > 0 && !progressStarted) {
-          // Initialize progress bar when we know the total size
-          progressStarted = true;
-          progressBar = new cliProgress.SingleBar({
-            format: `${chalk.cyan(options.filename || 'wheel')} |${chalk.cyan('{bar}')}| {percentage}% | {value}/{total} bytes | ETA: {eta}s`,
-            barCompleteChar: '\u2588',
-            barIncompleteChar: '\u2591',
-            hideCursor: true
-          });
-          progressBar.start(totalBytes, 0);
-        }
-        
-        if (progressBar) {
-          progressBar.update(downloadedBytes);
-        } else if (spinner && totalBytes > 0) {
-          const percent = Math.round((downloadedBytes / totalBytes) * 100);
-          spinner.text = `Downloading ${chalk.cyan(options.filename || 'wheel')}... ${percent}%`;
-        }
-      });
-
-      await pipeline(
-        downloadStream,
-        createWriteStream(outputPath)
-      );
-
-      if (progressBar) {
-        progressBar.stop();
-        if (!options.onProgress) { // Don't log if using custom progress
-          console.log(chalk.green(`✓ Downloaded ${options.filename || 'wheel'}`));
-        }
-      } else if (spinner) {
-        spinner.succeed(`Downloaded ${chalk.green(options.filename || 'wheel')}`);
-      }
-
-      return {
-        path: outputPath,
-        size: downloadedBytes,
-        url
-      };
-    } catch (error) {
-      if (progressBar) {
-        progressBar.stop();
-      }
-      if (spinner) {
-        spinner.fail(`Failed to download ${chalk.red(options.filename || 'wheel')}`);
-      }
-      throw new Error(`Download failed: ${error.message}`);
-    }
   }
 }

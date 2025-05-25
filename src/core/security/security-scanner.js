@@ -83,7 +83,9 @@ export class SecurityScanner {
         json: {
           coordinates: [purl]
         },
-        timeout: this.timeout,
+        timeout: {
+          request: this.timeout
+        },
         headers: {
           'User-Agent': 'pywhl-cli/1.0',
           'Content-Type': 'application/json'
@@ -128,7 +130,9 @@ export class SecurityScanner {
     try {
       // Safety DB API endpoint (simplified - in production you'd use their proper API)
       const response = await got.get(`${this.pyUpApiUrl}/packages/${packageName}/`, {
-        timeout: this.timeout,
+        timeout: {
+          request: this.timeout
+        },
         headers: {
           'User-Agent': 'pywhl-cli/1.0'
         }
