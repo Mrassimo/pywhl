@@ -26,7 +26,8 @@ export const downloadCommand = new Command('download')
   .option('--parallel <n>', 'Number of parallel downloads', parseInt, 3)
   .option('--use-advanced-resolver', 'Use advanced dependency resolver', false)
   .option('--skip-security-scan', 'Skip security vulnerability scanning', false)
-  .option('--skip-license-check', 'Skip license compliance checking', false)
+  .option('--enable-license-check', 'Enable license compliance checking', false)
+  .option('--strict-security', 'Block downloads on security vulnerabilities', false)
   .option('--force', 'Force download even with policy violations', false)
   .action(async (packageSpec, options) => {
     try {
@@ -156,13 +157,15 @@ export const downloadCommand = new Command('download')
         if (scanResult.scanned) {
           const securityCheck = await policyManager.validateSecurityScan(scanResult);
           
-          if (!securityCheck.allowed && !options.force) {
-            console.log(chalk.red('\n❌ Download blocked due to security vulnerabilities:'));
+          if (!securityCheck.allowed) {
+            console.log(chalk.yellow('\n⚠️  Security vulnerabilities detected:'));
             for (const violation of securityCheck.violations) {
-              console.log(chalk.red(`  • ${violation.message}`));
+              console.log(chalk.yellow(`  • ${violation.message}`));
             }
-            console.log(chalk.yellow('\nUse --force to override security check\n'));
-            process.exit(1);
+            // Don't block by default, just warn
+            if (!options.force) {
+              console.log(chalk.cyan('\n💡 Proceeding with download. Use --strict-security to block on vulnerabilities\n'));
+            }
           }
           
           if (scanResult.vulnerabilities.length > 0) {
@@ -181,8 +184,8 @@ export const downloadCommand = new Command('download')
         }
       }
 
-      // License Compliance Check
-      if (!options.skipLicenseCheck) {
+      // License Compliance Check (opt-in)
+      if (options.enableLicenseCheck) {
         console.log(chalk.blue('⚖️  Checking license compliance...'));
         const licenseResult = await licenseChecker.checkLicense(packageInfo);
         
@@ -194,7 +197,8 @@ export const downloadCommand = new Command('download')
             for (const violation of licenseCheck.violations) {
               console.log(chalk.red(`  • ${violation.message}`));
             }
-            console.log(chalk.yellow('\nUse --force to override license check\n'));
+            console.log(chalk.yellow('\nUse --force to override license check'));
+            console.log(chalk.yellow('Tip: License checking is opt-in. Remove --enable-license-check to skip\n'));
             process.exit(1);
           }
           

@@ -75,18 +75,25 @@ export class WheelParser {
     return false;
   }
 
-  static isPythonVersionCompatible(pythonTag, targetVersion = '3.9') {
+  static isPythonVersionCompatible(pythonTag, targetVersion = '3.9', preferStandard = true) {
     // Handle 'py2.py3' or 'py3' style tags
     if (pythonTag === 'py2.py3' || pythonTag === 'py3') {
       return targetVersion.startsWith('3');
     }
     
-    // Handle 'cp39' style tags (CPython 3.9)
-    const cpMatch = pythonTag.match(/cp(\d)(\d+)/);
+    // Handle 'cp313t' style tags (free-threaded Python 3.13)
+    // We need to handle both cp313 and cp313t tags
+    const cpMatch = pythonTag.match(/cp(\d)(\d+)(t?)/);
     if (cpMatch) {
       const wheelPyVersion = `${cpMatch[1]}.${cpMatch[2]}`;
-      // Compare with the target version (e.g., "3.11")
-      return wheelPyVersion === targetVersion;
+      const isFreeThreaded = cpMatch[3] === 't';
+      
+      // Check if version matches
+      if (wheelPyVersion === targetVersion) {
+        // If preferStandard is true, we only accept non-free-threaded wheels
+        // If preferStandard is false, we accept both
+        return preferStandard ? !isFreeThreaded : true;
+      }
     }
     
     // Handle 'py39' style tags
@@ -99,14 +106,14 @@ export class WheelParser {
     return false;
   }
 
-  static selectBestWheel(wheels, pythonVersion = '3.9', targetPlatform = null) {
+  static selectBestWheel(wheels, pythonVersion = '3.9', targetPlatform = null, preferStandard = true) {
     const platform = targetPlatform || this.getCurrentPlatform();
     
     // Filter compatible wheels
     const compatible = wheels.filter(wheel => {
       try {
         const parsed = this.parseWheelFilename(wheel.filename);
-        return this.isPythonVersionCompatible(parsed.pythonTag, pythonVersion) &&
+        return this.isPythonVersionCompatible(parsed.pythonTag, pythonVersion, preferStandard) &&
                this.isPlatformCompatible(parsed.platformTag, platform);
       } catch (error) {
         return false;
@@ -117,10 +124,16 @@ export class WheelParser {
       return null;
     }
 
-    // Sort by preference: platform-specific > any, newer python version > older
+    // Sort by preference
     compatible.sort((a, b) => {
       const parsedA = this.parseWheelFilename(a.filename);
       const parsedB = this.parseWheelFilename(b.filename);
+      
+      // Prefer standard Python over free-threaded (cp313 over cp313t)
+      const aIsFreeThreaded = parsedA.pythonTag.endsWith('t');
+      const bIsFreeThreaded = parsedB.pythonTag.endsWith('t');
+      if (!aIsFreeThreaded && bIsFreeThreaded) return -1;
+      if (aIsFreeThreaded && !bIsFreeThreaded) return 1;
       
       // Prefer platform-specific over 'any'
       if (parsedA.platformTag !== 'any' && parsedB.platformTag === 'any') return -1;

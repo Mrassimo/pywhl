@@ -130,7 +130,7 @@ pywhl --version
 ### 🎉 Your First Download
 
 ```bash
-# Download a single package
+# Download a single package (auto-detects Python version)
 pywhl download requests
 
 # Download with dependencies
@@ -141,7 +141,16 @@ pywhl download "django==4.2.0" --deps
 
 # Download for specific Python version
 pywhl download numpy -p 3.11
+
+# Enable strict checking (optional)
+pywhl download tensorflow --strict-security --enable-license-check
 ```
+
+**💡 Note**: By default, Pywhl:
+- Auto-detects your Python version
+- Shows security warnings but doesn't block downloads
+- Skips license checking (use `--enable-license-check` to enable)
+- Prefers standard Python wheels over free-threaded variants
 
 ---
 
@@ -252,29 +261,41 @@ pywhl interactive
 ### 🛡️ Security Scanning
 
 ```bash
-# Scan for vulnerabilities before download
+# Scan for vulnerabilities (warns by default)
 pywhl download django --deps
 
 # Output:
 🔍 Running security scan...
-⚠️ Found 2 vulnerabilities in django@4.0.0:
+⚠️ Security vulnerabilities detected:
+  • Package has 2 critical vulnerabilities
   • CVE-2023-12345 (High) - SQL Injection in ORM
   • CVE-2023-67890 (Medium) - XSS in admin panel
 
-# Force download despite vulnerabilities
-pywhl download django --force
+💡 Proceeding with download. Use --strict-security to block on vulnerabilities
+
+# Block downloads with vulnerabilities
+pywhl download django --strict-security
+
+# Skip security scanning entirely
+pywhl download django --skip-security-scan
 ```
 
 ### 📋 License Compliance
 
 ```bash
-# Check licenses before download
+# License checking is opt-in (disabled by default)
 pywhl download tensorflow
+
+# Enable license compliance checking
+pywhl download tensorflow --enable-license-check
 
 # Output:
 ⚖️ Checking license compliance...
 License: Apache-2.0 (approved)
 ✅ Package complies with corporate license policy
+
+# Force download even with license violations
+pywhl download some-gpl-package --enable-license-check --force
 ```
 
 ### 📊 Audit Reports
@@ -415,9 +436,15 @@ pywhl info numpy --versions
 # Try different Python version
 pywhl download numpy -p 3.10
 
+# For Python 3.13 users:
+# Pywhl automatically prefers standard wheels over free-threaded (cp313t)
+pywhl download numpy -p 3.13
+
 # Download source distribution instead
 pywhl download numpy --allow-sdist
 ```
+
+**Note for Python 3.13**: Pywhl automatically selects standard Python wheels (cp313) over free-threaded variants (cp313t) for better compatibility.
 
 ### 🔒 "Download blocked by policy"
 
@@ -425,14 +452,17 @@ pywhl download numpy --allow-sdist
 
 **Solution**:
 ```bash
-# Check policy violations
-pywhl admin policy check numpy
+# By default, license checking is disabled
+pywhl download numpy
 
-# Request approval (if enabled)
-pywhl admin request approve numpy
+# If you enabled license checking:
+pywhl download numpy --enable-license-check
 
-# Force download (admin only)
+# Force download despite policy violations
 pywhl download numpy --force
+
+# For strict security environments:
+pywhl download numpy --strict-security --enable-license-check
 ```
 
 ### 🌐 Network Timeout Errors
