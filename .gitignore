@@ -50,3 +50,10 @@ numpy-all-platforms.zip
 # Audit reports
 audit-report-*.json
 final-audit-report.json
+
+# Browser mode directories
+pywhl-downloads/
+pywhl-cache/
+pywhl-organized/
+install-wheels.bat
+install-wheels.sh
