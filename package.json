@@ -38,6 +38,9 @@
   "engines": {
     "node": ">=16.0.0"
   },
-  "dependencies": {},
-  "devDependencies": {}
+  "dependencies": {
+    "chalk": "^5.4.1",
+    "open": "^10.1.2",
+    "ora": "^8.2.0"
+  }
 }

@@ -1,568 +1,242 @@
-# 🐍📦 Pywhl - The Ultimate Python Package Manager for Restricted Environments
-
 <div align="center">
-  
-  [![Version](https://img.shields.io/badge/version-0.1.0-blue.svg)](https://github.com/Mrassimo/pywhl)
-  [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
-  [![Node](https://img.shields.io/badge/node-%3E%3D16.0.0-brightgreen.svg)](https://nodejs.org)
-  [![Python](https://img.shields.io/badge/python-3.7%2B-blue.svg)](https://python.org)
-  
-  <p align="center">
-    <strong>🚀 Download Python packages when pip can't! Perfect for corporate firewalls & air-gapped systems</strong>
-  </p>
+
+# 🌐 Pywhl - Python Packages Through Your Browser
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Python-3.7%2B-blue?style=flat-square&logo=python&logoColor=white" alt="Python">
+  <img src="https://img.shields.io/badge/Node.js-16%2B-green?style=flat-square&logo=node.js&logoColor=white" alt="Node.js">
+  <img src="https://img.shields.io/badge/License-MIT-yellow?style=flat-square" alt="License">
+  <img src="https://img.shields.io/badge/Platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey?style=flat-square" alt="Platform">
+</p>
+
+<h3>
+  <em>When pip is blocked, use your browser! 🚀</em>
+</h3>
+
+<p align="center">
+  <a href="#-the-problem">Problem</a> •
+  <a href="#-quick-start-30-seconds">Quick Start</a> •
+  <a href="#-how-it-works">How it Works</a> •
+  <a href="#-installation">Installation</a> •
+  <a href="#-faq">FAQ</a>
+</p>
 
 </div>
 
 ---
 
-## 📖 Table of Contents
+## 🚫 The Problem
 
-- [🌟 What is Pywhl?](#-what-is-pywhl)
-- [✨ Key Features](#-key-features)
-- [🎯 Who is this for?](#-who-is-this-for)
-- [🚀 Quick Start](#-quick-start)
-- [📚 Detailed Usage Guide](#-detailed-usage-guide)
-- [🎨 Interactive Mode](#-interactive-mode)
-- [🔐 Enterprise Features](#-enterprise-features)
-- [🛠️ Advanced Features](#️-advanced-features)
-- [📝 Examples & Recipes](#-examples--recipes)
-- [🤝 Contributing](#-contributing)
-- [❓ FAQ](#-faq)
-- [📄 License](#-license)
-
----
-
-## 🌟 What is Pywhl?
-
-**Pywhl** (pronounced "py-wheel") is a powerful Node.js command-line tool that helps you download and manage Python packages when direct `pip install` isn't an option. Whether you're behind a corporate firewall 🏢, working on an air-gapped system 🔒, or need to create offline installation bundles 📦, Pywhl has got you covered!
-
-### 🎥 See it in Action!
+Working behind a corporate firewall? Can't use pip? We've been there.
 
 ```bash
-# Download pandas with all its dependencies
-$ pywhl download pandas --deps
-
-🔍 Auto-detected Python version: 3.11
-
-📦 Downloading pandas
-
-🔍 Resolving dependencies...
-
-📊 Dependency tree:
-└── pandas==2.2.3
-    ├── numpy>=1.23.5
-    ├── python-dateutil>=2.8.2
-    └── pytz>=2022.7
-
-⬇️ Downloading 4 wheel(s)...
-(Using 3 parallel downloads)
-
-✓ pandas-2.2.3-cp311-cp311-win_amd64.whl
-✓ numpy-1.26.4-cp311-cp311-win_amd64.whl
-✓ python_dateutil-2.9.0-py2.py3-none-any.whl
-✓ pytz-2024.2-py2.py3-none-any.whl
-
-✅ Downloaded 4 wheel(s) to ./wheels
+$ pip install numpy
+🚫 ERROR: Could not connect to pypi.org (blocked by proxy)
 ```
 
----
+## ✅ The Solution
 
-## ✨ Key Features
-
-### 🎯 Core Capabilities
-
-- **📥 Smart Package Downloads** - Automatically selects the right wheel for your Python version and platform
-- **🔗 Dependency Resolution** - Downloads all required dependencies automatically
-- **💾 Local Caching** - Speeds up repeated downloads with intelligent caching
-- **📦 Offline Bundles** - Create self-contained packages for air-gapped installations
-- **🎨 Beautiful TUI** - Interactive terminal interface for easy package management
-- **⚡ Parallel Downloads** - Download multiple packages simultaneously for speed
-
-### 🏢 Enterprise Features
-
-- **🔐 Security Scanning** - Vulnerability detection before download
-- **📋 License Compliance** - Automatic license checking and policy enforcement
-- **📊 Audit Logging** - Complete tracking of all package operations
-- **👥 User Management** - Role-based access control
-- **📈 Analytics & Reporting** - Usage statistics and compliance reports
-- **🔧 Policy Management** - Customizable download and security policies
-
----
-
-## 🎯 Who is this for?
-
-Pywhl is perfect for:
-
-- **🏢 Corporate Developers** - Working behind strict firewalls
-- **🔒 Security-Conscious Teams** - Need to scan packages before installation
-- **✈️ Offline Environments** - Air-gapped systems, ships, remote locations
-- **🚀 DevOps Engineers** - Creating reproducible deployment packages
-- **📚 Data Scientists** - Managing large scientific Python stacks
-- **🎓 Students & Educators** - Learning environments with restricted internet
-
----
-
-## 🚀 Quick Start
-
-### 📋 Prerequisites
-
-- **Node.js** 16.0.0 or higher
-- **npm** (comes with Node.js)
-- **Python** 3.7+ (for installation verification)
-
-### 🔧 Installation
-
-```bash
-# Clone the repository
-git clone https://github.com/Mrassimo/pywhl.git
-cd pywhl
-
-# Install dependencies
-npm install
-
-# Install globally
-npm install -g .
-
-# Verify installation
-pywhl --version
-```
-
-### 🎉 Your First Download
-
-```bash
-# Download a single package (auto-detects Python version)
-pywhl download requests
-
-# Download with dependencies
-pywhl download flask --deps
-
-# Download specific version
-pywhl download "django==4.2.0" --deps
-
-# Download for specific Python version
-pywhl download numpy -p 3.11
-
-# Enable strict checking (optional)
-pywhl download tensorflow --strict-security --enable-license-check
-```
-
-**💡 Note**: By default, Pywhl:
-- Auto-detects your Python version
-- Shows security warnings but doesn't block downloads
-- Skips license checking (use `--enable-license-check` to enable)
-- Prefers standard Python wheels over free-threaded variants
-
----
-
-## 📚 Detailed Usage Guide
-
-### 🔍 Basic Commands
-
-#### 1️⃣ **Search for Packages**
-
-```bash
-# Search PyPI for packages
-pywhl search tensorflow
-
-# Show detailed package information
-pywhl info pandas
-```
-
-#### 2️⃣ **Download Packages**
-
-```bash
-# Basic download
-pywhl download numpy
-
-# Download with all dependencies
-pywhl download scipy --deps
-
-# Specify Python version and platform
-pywhl download torch -p 3.10 -t linux_x86_64
-
-# Download to custom directory
-pywhl download matplotlib -o ./my_wheels
-```
-
-#### 3️⃣ **Work with Requirements Files**
-
-```bash
-# Download all packages from requirements.txt
-pywhl download -r requirements.txt --deps
-
-# Example requirements.txt:
-# numpy>=1.20.0
-# pandas==2.0.0
-# scikit-learn
-# matplotlib!=3.7.0
-```
-
-#### 4️⃣ **Create Offline Bundles**
-
-```bash
-# Bundle packages for offline installation
-pywhl bundle numpy pandas scikit-learn -o ml_bundle.zip
-
-# Bundle with specific Python version
-pywhl bundle tensorflow torch -p 3.11 -o dl_bundle.zip
-
-# Bundle from requirements file
-pywhl bundle -r requirements.txt -o project_bundle.zip
-```
-
----
-
-## 🎨 Interactive Mode
-
-Launch the beautiful Terminal User Interface (TUI) for an intuitive experience:
-
-```bash
-pywhl interactive
-```
+**Your browser can access PyPI? Then you can get packages!**
 
 <div align="center">
-  <pre>
-╔═══════════════════════════════════════════════════════╗
-║      ____                 _     _                     ║
-║     |  _ \ _   ___      _| |__ | |                    ║
-║     | |_) | | | \ \ /\ / / '_ \| |                    ║
-║     |  __/| |_| |\ V  V /| | | | |                    ║
-║     |_|    \__, | \_/\_/ |_| |_|_|                    ║
-║            |___/                                       ║
-║                                                       ║
-║     🐍 Python Package Manager for Restricted Envs     ║
-╚═══════════════════════════════════════════════════════╝
-
-  What would you like to do?
-
-  ❯ 🔍 Search and download packages
-    📋 Download from requirements.txt  
-    ⚙️  Configure settings
-    💾 Manage cache
-    📊 View download history
-    ❌ Exit
-
-  Use arrow keys to navigate, Enter to select
-  </pre>
+  <img src="https://img.shields.io/badge/1-Generate_URLs-blue?style=for-the-badge" alt="Step 1">
+  <img src="https://img.shields.io/badge/2-Download_via_Browser-green?style=for-the-badge" alt="Step 2">
+  <img src="https://img.shields.io/badge/3-Install_Locally-orange?style=for-the-badge" alt="Step 3">
 </div>
 
-### 🎯 Interactive Mode Features
+---
 
-- **🔍 Package Search** - Search PyPI with live results
-- **📦 Smart Selection** - Choose packages and versions interactively
-- **🔗 Dependency Preview** - See dependencies before downloading
-- **⚙️ Easy Configuration** - Set Python version, output directory, etc.
-- **📊 Download History** - Track what you've downloaded
+## 🚀 Quick Start (30 seconds)
+
+### 1️⃣ Generate Download Links
+```bash
+pywhl numpy pandas
+```
+
+### 2️⃣ Browser Opens → Click & Download
+
+### 3️⃣ Process & Install
+```bash
+node process-downloads.js
+install-wheels.bat
+```
+
+**Done!** Your packages are installed. No proxy issues. No IT tickets. 🎉
 
 ---
 
-## 🔐 Enterprise Features
+## 📥 Installation
 
-### 🛡️ Security Scanning
-
+### Option A: Git Clone (Recommended)
 ```bash
-# Scan for vulnerabilities (warns by default)
-pywhl download django --deps
-
-# Output:
-🔍 Running security scan...
-⚠️ Security vulnerabilities detected:
-  • Package has 2 critical vulnerabilities
-  • CVE-2023-12345 (High) - SQL Injection in ORM
-  • CVE-2023-67890 (Medium) - XSS in admin panel
-
-💡 Proceeding with download. Use --strict-security to block on vulnerabilities
-
-# Block downloads with vulnerabilities
-pywhl download django --strict-security
-
-# Skip security scanning entirely
-pywhl download django --skip-security-scan
-```
-
-### 📋 License Compliance
-
-```bash
-# License checking is opt-in (disabled by default)
-pywhl download tensorflow
-
-# Enable license compliance checking
-pywhl download tensorflow --enable-license-check
-
-# Output:
-⚖️ Checking license compliance...
-License: Apache-2.0 (approved)
-✅ Package complies with corporate license policy
-
-# Force download even with license violations
-pywhl download some-gpl-package --enable-license-check --force
-```
-
-### 📊 Audit Reports
-
-```bash
-# Generate audit report
-pywhl admin audit report
-
-# View real-time audit log
-pywhl admin audit tail
-
-# Export audit data
-pywhl admin audit export --format json
-```
-
-### 👥 User Management
-
-```bash
-# Initialize enterprise policies
-pywhl admin policy init
-
-# Add admin user
-pywhl admin user add john.doe --role admin
-
-# Set download limits
-pywhl admin policy set download.daily_limit 100
-```
-
----
-
-## 🛠️ Advanced Features
-
-### ⚡ Parallel Downloads
-
-```bash
-# Download with 5 parallel connections
-pywhl download -r requirements.txt --parallel 5
-```
-
-### 🏢 Private Repositories
-
-```bash
-# Configure private PyPI
-pywhl repo add private https://pypi.company.com --auth token:xyz123
-
-# Download from private repo
-pywhl download internal-package --repo private
-```
-
-### 🔧 Configuration Profiles
-
-```bash
-# Create a profile
-pywhl config profile create data-science \
-  --python 3.11 \
-  --platform linux_x86_64 \
-  --output ~/ds-wheels
-
-# Use profile
-pywhl download pandas --profile data-science
-```
-
-### 📦 VS Code Extension
-
-Install our VS Code extension for integrated package management:
-
-```bash
-# In VS Code
-ext install pywhl.pywhl-vscode
-```
-
-Features:
-- 📋 Download packages from requirements.txt with one click
-- 🔍 Search PyPI directly from VS Code
-- 📊 View package dependencies in sidebar
-- ⚡ Quick actions in context menus
-
----
-
-## 📝 Examples & Recipes
-
-### 🧬 Data Science Stack
-
-```bash
-# Download complete data science toolkit
-cat > ds_requirements.txt << EOF
-numpy
-pandas
-scikit-learn
-matplotlib
-seaborn
-jupyter
-scipy
-statsmodels
-EOF
-
-pywhl download -r ds_requirements.txt --deps -o ./datascience_wheels
-```
-
-### 🏢 Enterprise Package Bundle
-
-```bash
-# Create approved package bundle for distribution
-pywhl bundle \
-  requests \
-  flask \
-  sqlalchemy \
-  redis \
-  celery \
-  -o approved_packages_2024.zip \
-  --sign \
-  --include-install-script
-```
-
-### 🔄 Offline Mirror Setup
-
-```bash
-# Download top 100 packages for offline mirror
-pywhl download -r popular_packages.txt --deps --parallel 10
-
-# Create installation script
-pywhl install-script ./wheels --output install_all.sh
-```
-
----
-
-## 🤔 Common Issues & Solutions
-
-### ❌ "No compatible wheel found"
-
-**Problem**: Package doesn't have a wheel for your Python/platform combination.
-
-**Solution**:
-```bash
-# Check available versions
-pywhl info numpy --versions
-
-# Try different Python version
-pywhl download numpy -p 3.10
-
-# For Python 3.13 users:
-# Pywhl automatically prefers standard wheels over free-threaded (cp313t)
-pywhl download numpy -p 3.13
-
-# Download source distribution instead
-pywhl download numpy --allow-sdist
-```
-
-**Note for Python 3.13**: Pywhl automatically selects standard Python wheels (cp313) over free-threaded variants (cp313t) for better compatibility.
-
-### 🔒 "Download blocked by policy"
-
-**Problem**: Enterprise policy blocking the download.
-
-**Solution**:
-```bash
-# By default, license checking is disabled
-pywhl download numpy
-
-# If you enabled license checking:
-pywhl download numpy --enable-license-check
-
-# Force download despite policy violations
-pywhl download numpy --force
-
-# For strict security environments:
-pywhl download numpy --strict-security --enable-license-check
-```
-
-### 🌐 Network Timeout Errors
-
-**Problem**: Slow or unreliable network connection.
-
-**Solution**:
-```bash
-# Increase timeout
-pywhl config set download.timeout 300
-
-# Reduce parallel downloads
-pywhl download -r requirements.txt --parallel 1
-
-# Enable aggressive retry
-pywhl download numpy --retry 5
-```
-
----
-
-## 🤝 Contributing
-
-We love contributions! Here's how you can help:
-
-1. 🍴 **Fork** the repository
-2. 🌿 **Create** a feature branch (`git checkout -b feature/amazing-feature`)
-3. 💻 **Commit** your changes (`git commit -m 'Add amazing feature'`)
-4. 📤 **Push** to the branch (`git push origin feature/amazing-feature`)
-5. 🎉 **Open** a Pull Request
-
-### 🛠️ Development Setup
-
-```bash
-# Clone your fork
-git clone https://github.com/your-username/pywhl.git
+git clone -b lightweight https://github.com/Mrassimo/pywhl.git
 cd pywhl
-
-# Install development dependencies
-npm install
-
-# Run tests
-npm test
-
-# Run in development mode
-npm run dev
 ```
+
+### Option B: Download ZIP
+[⬇️ Download Latest Release](https://github.com/Mrassimo/pywhl/archive/refs/heads/lightweight.zip)
+
+**Requirements:**
+- ✅ Node.js 16+ ([Download](https://nodejs.org))
+- ✅ Python 3.7+
+- ✅ A web browser
+- ❌ No npm install needed!
+
+---
+
+## 📖 How It Works
+
+```mermaid
+graph LR
+    A[pywhl numpy] --> B[Generate<br/>HTML Page]
+    B --> C[Open in<br/>Browser]
+    C --> D[Download<br/>Wheels]
+    D --> E[Process<br/>Files]
+    E --> F[pip install<br/>Locally]
+    
+    style A fill:#3498db,color:#fff
+    style C fill:#2ecc71,color:#fff
+    style F fill:#e74c3c,color:#fff
+```
+
+1. **Smart URL Generation** - Creates download links for PyPI packages
+2. **Browser Downloads** - Uses your browser's authenticated connection
+3. **Local Processing** - Organizes and prepares packages for installation
+4. **Offline Install** - pip installs from local files (no internet needed)
+
+---
+
+## 🎯 Usage Examples
+
+### Basic Usage
+```bash
+# Single package
+pywhl requests
+
+# Multiple packages
+pywhl numpy pandas matplotlib
+
+# Specific version
+pywhl django==4.2.0
+
+# From requirements file
+pywhl -r requirements.txt
+```
+
+### Advanced Options
+```bash
+# Try direct download (if proxy allows)
+pywhl --direct numpy
+
+# Show help
+pywhl --help
+```
+
+---
+
+## 🖥️ Platform Support
+
+| Platform | Command | Tested |
+|----------|---------|--------|
+| Windows (CMD) | `pywhl.bat <package>` | ✅ |
+| Windows (PowerShell) | `.\pywhl.ps1 <package>` | ✅ |
+| macOS/Linux | `./pywhl.js <package>` | ✅ |
+| Any Platform | `node pywhl.js <package>` | ✅ |
 
 ---
 
 ## ❓ FAQ
 
-### **Q: How is this different from pip download?**
+<details>
+<summary><b>Why browser mode by default?</b></summary>
 
-**A:** Pywhl offers:
-- 🎨 Beautiful interactive UI
-- 🔐 Enterprise security features
-- 📊 Comprehensive audit logging
-- 🚀 Parallel downloads
-- 📦 Bundle creation
-- 🔍 Better dependency resolution
+Browsers handle proxy authentication automatically. CLI tools often can't authenticate through corporate proxies, but browsers have your credentials and certificates already configured.
+</details>
 
-### **Q: Can I use this with conda packages?**
+<details>
+<summary><b>What if I can't access PyPI from my browser?</b></summary>
 
-**A:** Currently, Pywhl only supports PyPI packages. Conda support is on our roadmap!
+You'll need to:
+1. Download packages on an unrestricted network
+2. Transfer via USB/network share
+3. Use `pip install --find-links /path/to/wheels package-name`
+</details>
 
-### **Q: Does it work on all platforms?**
+<details>
+<summary><b>How do I know which wheel to download?</b></summary>
 
-**A:** Yes! Pywhl works on:
-- 🪟 Windows (7, 10, 11)
-- 🐧 Linux (all major distros)
-- 🍎 macOS (10.14+)
+The HTML page color-codes wheels:
+- 🟢 **Green**: Universal (works everywhere)
+- 🟡 **Yellow**: Platform-specific
+- 🔴 **Red**: Source (needs compilation)
 
-### **Q: Is it safe for production use?**
+For Windows 64-bit, look for `win_amd64`. For any platform, `py3-none-any` works.
+</details>
 
-**A:** Absolutely! Pywhl includes:
-- 🔒 Security vulnerability scanning
-- 📋 License compliance checking
-- 🔐 Package integrity verification
-- 📊 Complete audit trails
+<details>
+<summary><b>Can I use this offline?</b></summary>
+
+Yes! After downloading packages once, they're cached locally. You can:
+- Share the cache folder with colleagues
+- Build offline bundles
+- Install without internet using the cache
+</details>
 
 ---
 
-## 📄 License
+## 🛠️ Troubleshooting
 
-This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
+| Issue | Solution |
+|-------|----------|
+| "Node.js not found" | Install Node.js from [nodejs.org](https://nodejs.org) |
+| "Cannot download from PyPI" | Your browser might be blocked too - try a different network |
+| "Wrong platform wheel" | Download the universal wheel (`py3-none-any.whl`) |
+| "Module not found" | Make sure you're in the pywhl directory |
+
+---
+
+## 🤝 Contributing
+
+We love contributions! Whether it's:
+- 🐛 Bug reports
+- 💡 Feature suggestions
+- 📝 Documentation improvements
+- 🔧 Code contributions
+
+Please check out our [Contributing Guide](CONTRIBUTING.md) to get started.
+
+---
+
+## 📚 Documentation
+
+- 📖 [Browser Mode Guide](docs/BROWSER-MODE-GUIDE.md)
+- 🏢 [Corporate Proxy Solutions](docs/CORPORATE-PROXY-SOLUTIONS.md)
+- 💼 [Work PC Setup Guide](docs/WORK-PC-GUIDE.md)
+- 🔀 [Development & Merging](docs/MERGE-STRATEGY.md)
+
+---
+
+## 🙏 Acknowledgments
+
+Built with frustration and coffee ☕ by developers stuck behind corporate firewalls.
+
+Special thanks to:
+- The Python community for making amazing packages
+- Node.js for being available when pip isn't
+- Every developer who's fought with a corporate proxy
+
+---
+
+## 📜 License
+
+MIT License - see [LICENSE](LICENSE) file for details.
 
 ---
 
 <div align="center">
-  
-  ### 🌟 Star us on GitHub!
-  
-  If Pywhl helps you, please consider giving us a star ⭐
-  
-  [**🐙 GitHub**](https://github.com/Mrassimo/pywhl) • 
-  [**🐛 Issues**](https://github.com/Mrassimo/pywhl/issues) • 
-  [**💬 Discussions**](https://github.com/Mrassimo/pywhl/discussions)
-  
-  ---
-  
-  Made with ❤️ by the Pywhl Team
-  
+
+**If your browser can see it, pywhl can download it!** 🌐✨
+
+<sub>Made with ❤️ for developers in restricted environments</sub>
+
 </div>
