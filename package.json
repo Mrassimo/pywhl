@@ -1,16 +1,14 @@
 {
-  "name": "pywhl",
-  "version": "0.1.0",
-  "description": "CLI tool for downloading and managing Python wheels in restricted environments",
-  "main": "./src/index.js",
+  "name": "pywhl-lightweight",
+  "version": "0.1.0-lightweight",
+  "description": "Lightweight CLI tool for downloading and managing Python wheels in restricted environments",
+  "main": "./pywhl-lightweight.js",
   "bin": {
-    "pywhl": "./bin/pywhl.js"
+    "pywhl": "./pywhl-lightweight.js"
   },
   "scripts": {
-    "start": "node ./bin/pywhl.js",
-    "dev": "node ./bin/pywhl.js",
-    "test": "jest",
-    "postinstall": "echo '\n🎉 Pywhl CLI installed successfully!' && echo '💡 Get started: npx pywhl --help' && echo '📚 Documentation: https://github.com/Mrassimo/pywhl#readme\n'"
+    "build": "node ./build-lightweight.js",
+    "start": "node ./pywhl-lightweight.js"
   },
   "keywords": [
     "python",
@@ -22,7 +20,9 @@
     "offline",
     "restricted-environments",
     "pypi",
-    "dependency-management"
+    "dependency-management",
+    "lightweight",
+    "standalone"
   ],
   "repository": {
     "type": "git",
@@ -38,25 +38,6 @@
   "engines": {
     "node": ">=16.0.0"
   },
-  "dependencies": {
-    "archiver": "^7.0.1",
-    "boxen": "^8.0.1",
-    "chalk": "^5.4.1",
-    "cli-progress": "^3.12.0",
-    "cli-table3": "^0.6.5",
-    "commander": "^14.0.0",
-    "conf": "^13.1.0",
-    "figlet": "^1.8.1",
-    "got": "^14.4.7",
-    "gradient-string": "^3.0.0",
-    "inquirer": "^9.2.12",
-    "ora": "^8.2.0",
-    "p-limit": "^6.2.0",
-    "semver": "^7.7.2",
-    "yaml": "^2.8.0"
-  },
-  "devDependencies": {
-    "eslint": "^9.27.0",
-    "jest": "^29.7.0"
-  }
+  "dependencies": {},
+  "devDependencies": {}
 }
