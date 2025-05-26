@@ -161,10 +161,8 @@ async function downloadWheel(url, filename, outputDir) {
 
 // Commands
 const program = new Command('pywhl');
-
-program
-  .version('0.1.0-lightweight')
-  .description('Lightweight Python wheel downloader for restricted environments');
+program.version('0.1.0-lightweight');
+program.description('Lightweight Python wheel downloader for restricted environments');
 
 // Search command
 program

@@ -3,8 +3,8 @@
 export class Command {
   constructor(name) {
     this.name = name;
-    this.description = '';
-    this.version = '';
+    this._description = '';
+    this._version = '';
     this.options = [];
     this.commands = new Map();
     this.args = [];
@@ -37,12 +37,12 @@ export class Command {
   }
   
   description(desc) {
-    this.description = desc;
+    this._description = desc;
     return this;
   }
   
   version(ver, flags = '-V, --version') {
-    this.version = ver;
+    this._version = ver;
     this.option(flags, 'output the version number');
     return this;
   }
@@ -121,6 +121,12 @@ export class Command {
       if (option) {
         const key = this.optionKey(option);
         
+        // Special handling for version
+        if (key === 'version' && (arg === '-V' || arg === '--version')) {
+          console.log(this._version);
+          process.exit(0);
+        }
+        
         if (option.bool) {
           parsed.options[key] = true;
         } else {
@@ -137,7 +143,7 @@ export class Command {
           this.outputHelp();
           process.exit(0);
         } else if (arg === '-V' || arg === '--version') {
-          console.log(this.version);
+          console.log(this._version);
           process.exit(0);
         } else {
           console.error(`Unknown option: ${arg}`);
@@ -191,8 +197,8 @@ export class Command {
   outputHelp() {
     console.log(`\nUsage: ${this.name} [options]${this.commands.size ? ' [command]' : ''}`);
     
-    if (this.description) {
-      console.log(`\n${this.description}`);
+    if (this._description) {
+      console.log(`\n${this._description}`);
     }
     
     if (this.options.length) {
@@ -206,7 +212,7 @@ export class Command {
     if (this.commands.size) {
       console.log('\nCommands:');
       this.commands.forEach((cmd, name) => {
-        console.log(`  ${name.padEnd(25)} ${cmd.description}`);
+        console.log(`  ${name.padEnd(25)} ${cmd._description}`);
       });
     }
   }
