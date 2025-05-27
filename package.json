@@ -11,7 +11,9 @@
     "dev": "node ./bin/pywhl.js",
     "test": "jest",
     "lint": "eslint src/",
-    "postinstall": "echo '\n🎉 PyWhl CLI Enterprise installed successfully!' && echo '🚀 Advanced Python package management for restricted environments' && echo '💡 Get started: pywhl --help' && echo '📚 Documentation: https://github.com/Mrassimo/pywhl#readme\n'"
+    "setup": "npm install && npm link",
+    "install-global": "npm install -g .",
+    "postinstall": "echo '\n🎉 PyWhl CLI Enterprise dependencies installed!' && echo '🚀 Advanced Python package management for restricted environments' && echo '💡 Run: npm run setup (for global access)' && echo '💡 Or use: node bin/pywhl.js --help' && echo '📚 Documentation: https://github.com/Mrassimo/pywhl#readme\n'"
   },
   "keywords": [
     "python",

@@ -33,17 +33,29 @@ A comprehensive Node.js CLI tool for downloading, managing, and deploying Python
 
 ## 🚀 Quick Start
 
-### Installation
+### ⚡ One-Command Installation
 
+**Option 1: Automated Install Script (Recommended)**
 ```bash
-# Install globally via npm
-npm install -g pywhl
+# Clone and auto-install (Linux/macOS)
+git clone https://github.com/Mrassimo/pywhl.git && cd pywhl && ./install.sh
 
-# Or clone and install locally
+# Clone and auto-install (Windows)
+git clone https://github.com/Mrassimo/pywhl.git && cd pywhl && install.bat
+```
+
+**Option 2: NPM Global Install**
+```bash
+# Install globally via npm (if published)
+npm install -g pywhl
+```
+
+**Option 3: Manual Setup**
+```bash
+# Clone and setup manually
 git clone https://github.com/Mrassimo/pywhl.git
 cd pywhl
-npm install
-npm link
+npm run setup  # Installs deps + links globally
 ```
 
 ### Basic Usage
