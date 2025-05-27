@@ -1,9 +1,9 @@
 import Conf from 'conf';
+import yaml from 'yaml';
+import chalk from 'chalk';
 import { homedir } from 'os';
 import { join } from 'path';
 import { readFile, writeFile, mkdir } from 'fs/promises';
-import yaml from 'yaml';
-import chalk from 'chalk';
 
 const CONFIG_SCHEMA = {
   defaults: {

@@ -1,10 +1,10 @@
 import got from 'got';
-import { createWriteStream } from 'fs';
-import { pipeline } from 'stream/promises';
 import ora from 'ora';
 import chalk from 'chalk';
 import cliProgress from 'cli-progress';
 import pLimit from 'p-limit';
+import { createWriteStream } from 'fs';
+import { pipeline } from 'stream/promises';
 
 export class Downloader {
   constructor(options = {}) {

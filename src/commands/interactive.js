@@ -16,7 +16,7 @@ export const interactiveCommand = new Command('interactive')
     try {
       // Display welcome banner
       const banner = figlet.textSync('Pywhl', { font: 'Big' });
-      console.log(gradient.rainbow(banner));
+      console.log(gradient(['#ff0000', '#00ff00', '#0000ff'])(banner));
       console.log(boxen('Welcome to Pywhl Interactive Mode', {
         padding: 1,
         margin: 1,

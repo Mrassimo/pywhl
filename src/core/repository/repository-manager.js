@@ -1,6 +1,6 @@
+import chalk from 'chalk';
 import { getConfigManager } from '../config/config-manager.js';
 import { PyPIClient } from '../pypi/client.js';
-import chalk from 'chalk';
 
 export class RepositoryManager {
   constructor() {

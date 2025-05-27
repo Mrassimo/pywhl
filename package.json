@@ -10,7 +10,8 @@
     "start": "node ./bin/pywhl.js",
     "dev": "node ./bin/pywhl.js",
     "test": "jest",
-    "postinstall": "echo '\n🎉 Pywhl CLI installed successfully!' && echo '💡 Get started: npx pywhl --help' && echo '📚 Documentation: https://github.com/Mrassimo/pywhl#readme\n'"
+    "lint": "eslint src/",
+    "postinstall": "echo '\n🎉 PyWhl CLI Enterprise installed successfully!' && echo '🚀 Advanced Python package management for restricted environments' && echo '💡 Get started: pywhl --help' && echo '📚 Documentation: https://github.com/Mrassimo/pywhl#readme\n'"
   },
   "keywords": [
     "python",

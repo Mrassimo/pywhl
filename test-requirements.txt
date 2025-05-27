@@ -1,6 +1,0 @@
-# Test requirements file
-requests==2.31.0
-click>=8.0
-pytest  # Testing framework
-numpy==1.24.3
-pandas>=1.5.0,<2.0.0

@@ -1,7 +1,7 @@
 import got from 'got';
+import semver from 'semver';
 import { createHash } from 'crypto';
 import { readFile } from 'fs/promises';
-import semver from 'semver';
 
 export class SecurityScanner {
   constructor(config = {}) {

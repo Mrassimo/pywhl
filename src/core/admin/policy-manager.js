@@ -1,7 +1,7 @@
+import yaml from 'yaml';
 import { readFile, writeFile, mkdir } from 'fs/promises';
 import { join } from 'path';
 import { existsSync } from 'fs';
-import yaml from 'yaml';
 
 export class PolicyManager {
   constructor(config = {}) {
